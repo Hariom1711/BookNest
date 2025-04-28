@@ -44,8 +44,9 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchBooks = async () => {
+      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
       try {
-        const { data } = await axios.get('http://localhost:5000/api/books');
+        const { data } = await axios.get(`${baseURL}/api/books`);
         setBooks(data);
         setFilteredBooks(data);
         setLoading(false);
@@ -54,11 +55,9 @@ const HomePage = () => {
         setLoading(false);
       }
     };
-
+  
     fetchBooks();
   }, []);
-
-
 
   // Use sample books if no books are fetched from API
   const displayBooks = books.length > 0 ? books : sampleBooks;

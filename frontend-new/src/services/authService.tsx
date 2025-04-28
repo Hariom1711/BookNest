@@ -2,12 +2,12 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-// Set your base URL
-const API_URL = 'http://localhost:5000/api'; // Your backend URL
+// Set your base URL with environment variable support
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -1084,14 +1084,15 @@ const BookPage = () => {
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>([]);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
-
+  
   useEffect(() => {
     const fetchBooks = async () => {
+      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
       try {
         const endpoint = id 
-          ? `http://localhost:5000/api/books/${id}`  // Use specific book endpoint if id is available
-          : "http://localhost:5000/api/books"; // Use general books endpoint if id is not available
-  
+          ? `${baseURL}/api/books/${id}`  // Use ${baseURL} instead of baseURL
+          : `${baseURL}/api/books`; // Use ${baseURL} instead of baseURL
+          
         const { data } = await axios.get(endpoint);
         setBooks(data.length > 0 ? data : sampleBooks);
   
@@ -1111,9 +1112,6 @@ const BookPage = () => {
     };
     fetchBooks();
   }, [id]);
-  
-
-
 
   useEffect(() => {
     if (genre) {
