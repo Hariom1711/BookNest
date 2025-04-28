@@ -44,7 +44,7 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchBooks = async () => {
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       try {
         const { data } = await axios.get(`${baseURL}/api/books`);
         setBooks(data);

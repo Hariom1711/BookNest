@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 // Set your base URL with environment variable support
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL =import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Create axios instance with default config
 const api = axios.create({

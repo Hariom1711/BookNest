@@ -1087,7 +1087,7 @@ const BookPage = () => {
   
   useEffect(() => {
     const fetchBooks = async () => {
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       try {
         const endpoint = id 
           ? `${baseURL}/api/books/${id}`  // Use ${baseURL} instead of baseURL
