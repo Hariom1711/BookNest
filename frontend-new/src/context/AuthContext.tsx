@@ -78,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: _id || '123', // Fallback ID if not returned
         name: name || email.split('@')[0], // Fallback if name isn't returned
         email,
+        avatar: ''
       };
       
       // Store user data and token in cookies
