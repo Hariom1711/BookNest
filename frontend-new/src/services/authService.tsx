@@ -39,7 +39,7 @@ export const authService = {
     // Store token in cookies
     if (response.data.token) {
       Cookies.set('token', response.data.token, { expires: 7 }); // Token expires in 7 days
-      
+      console.log('data:', response.data);
       const userData = {
         id: response.data._id || '123',
         name: response.data.name || email.split('@')[0],

@@ -75,11 +75,102 @@ const borrowBook = asyncHandler(async (req, res) => {
 // @desc    Return a book
 // @route   PUT /api/transactions/return/:id
 // @access  Private
+// const returnBook = asyncHandler(async (req, res) => {
+//   console.log(req,"req")
+//   const { id } = req.params; // Transaction ID
+//   console.log('Transaction ID:', id);
+//   // Find the transaction
+//   const transaction = await Transaction.findById(id);
+//   console.log('Transaction:', transaction); 
+  
+//   if (!transaction) {
+//     res.status(404);
+//     throw new Error('Transaction not found');
+//   }
+  
+//   // Check if the transaction belongs to the logged-in user
+//   if (transaction.user.toString() !== req.user._id.toString()) {
+//     res.status(401);
+//     throw new Error('Not authorized');
+//   }
+  
+//   // Check if the book is already returned
+//   if (transaction.status === 'returned') {
+//     res.status(400);
+//     throw new Error('Book is already returned');
+//   }
+  
+//   // Update transaction
+//   transaction.status = 'returned';
+//   transaction.returnDate = Date.now();
+  
+//   // Calculate fine if book is returned late
+//   const currentDate = new Date();
+//   const dueDate = new Date(transaction.dueDate);
+  
+//   if (currentDate > dueDate) {
+//     const daysLate = Math.ceil((currentDate - dueDate) / (1000 * 60 * 60 * 24));
+//     transaction.fine = daysLate * 0.5; // $0.50 per day late
+//   }
+  
+//   await transaction.save();
+  
+//   // Update book available copies
+//   const book = await Book.findById(transaction.book);
+//   book.availableCopies += 1;
+//   await book.save();
+  
+//   // Update user's borrowed books
+//   const user = await User.findById(req.user._id);
+//   const borrowedBookIndex = user.borrowedBooks.findIndex(
+//     item => item.book.toString() === transaction.book.toString() && item.status === 'borrowed'
+//   );
+  
+//   if (borrowedBookIndex > -1) {
+//     user.borrowedBooks[borrowedBookIndex].status = 'returned';
+//     user.borrowedBooks[borrowedBookIndex].returnDate = Date.now();
+//     await user.save();
+//   }
+  
+//   res.json(transaction);
+// });
+
 const returnBook = asyncHandler(async (req, res) => {
   const { id } = req.params; // Transaction ID
+  console.log('Transaction ID requested:', id);
   
-  // Find the transaction
-  const transaction = await Transaction.findById(id);
+  // First try to find the transaction directly
+  let transaction = await Transaction.findById(id);
+  
+  // If transaction not found, check if it's a borrowedBooks entry ID
+  if (!transaction) {
+    console.log('Direct transaction not found, checking in user borrowedBooks');
+    
+    // Find user with this borrowedBooks entry
+    const userWithBorrowedBook = await User.findOne({
+      'borrowedBooks._id': id
+    });
+    
+    if (userWithBorrowedBook) {
+      // Find the specific borrowed book entry
+      const borrowedBookEntry = userWithBorrowedBook.borrowedBooks.find(
+        entry => entry._id.toString() === id
+      );
+      
+      if (borrowedBookEntry) {
+        // Now find the actual transaction using book and user IDs
+        transaction = await Transaction.findOne({
+          book: borrowedBookEntry.book,
+          user: userWithBorrowedBook._id,
+          status: 'borrowed'
+        });
+        
+        console.log('Found transaction through borrowedBooks:', transaction);
+      }
+    }
+  }
+  
+  console.log('Final transaction found:', transaction);
   
   if (!transaction) {
     res.status(404);
@@ -132,7 +223,6 @@ const returnBook = asyncHandler(async (req, res) => {
   
   res.json(transaction);
 });
-
 // @desc    Get user's borrowed books
 // @route   GET /api/transactions/mybooks
 // @access  Private
